@@ -105,7 +105,9 @@ body {
 }
 
 .meja-hasil {
+    font-family: 'Times New Roman', Times, serif;
+    text-align: center;
     font-style: italic;
-    font-weight: 300;
+    font-weight: 600;
     color: #5c4d3c;
 }
