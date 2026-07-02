@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manajemen Tamu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <div class="container" style="margin-top: 50px;">
+        <h1 class="main-title">Manajemen Tamu</h1>
+        
+        <div style="background: rgba(255,255,255,0.6); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+            <h3 style="margin-bottom: 15px; font-family: 'Montserrat';">Tambah Manual</h3>
+            <div class="search-wrapper" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="text" id="input-nama-baru" placeholder="Nama Lengkap Tamu" autocomplete="off">
+                <input type="text" id="input-meja-baru" placeholder="Nomor Meja (Misal: Tabel 1)" autocomplete="off">
+            </div>
+            <button id="btn-simpan" style="margin-top: 15px; padding: 10px 20px; background-color: #8c7a5c; color: white; border: none; border-radius: 4px; cursor: pointer; transition: 0.3s; width: 100%;">Simpan ke Database</button>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.6); padding: 20px; border-radius: 8px;">
+            <h3 style="margin-bottom: 10px; font-family: 'Montserrat';">Import dari Excel</h3>
+            <p style="font-size: 13px; color: #666; margin-bottom: 15px; line-height: 1.5;">Format file harus .xlsx. Kolom A untuk Nama, Kolom B untuk Tabel. Baris 1 akan dianggap sebagai Judul (Header) dan diabaikan.</p>
+            
+            <input type="file" id="file-excel" accept=".xlsx, .xls, .csv" style="margin-bottom: 15px; width: 100%; font-family: 'Montserrat';">
+            
+            <button id="btn-import" style="padding: 10px 20px; background-color: #5c4d3c; color: white; border: none; border-radius: 4px; cursor: pointer; transition: 0.3s; width: 100%;">Mulai Import Data</button>
+        </div>
+    </div>
+
+    <script>
+        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+        const urlAPI = 'URL_APPS_SCRIPT_ANDA';
+
+        // LOGIKA TAMBAH MANUAL
+        document.getElementById('btn-simpan').addEventListener('click', async function() {
+            const nama = document.getElementById('input-nama-baru').value;
+            const meja = document.getElementById('input-meja-baru').value;
+            const btn = document.getElementById('btn-simpan');
+            
+            if(nama && meja) {
+                btn.textContent = "Menyimpan...";
+                btn.disabled = true;
+
+                try {
+                    await fetch(urlAPI, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'add', nama: nama, meja: meja })
+                    });
+                    
+                    alert(`Sukses! ${nama} ditambahkan.`);
+                    document.getElementById('input-nama-baru').value = '';
+                    document.getElementById('input-meja-baru').value = '';
+                } catch (error) {
+                    alert("Gagal menyimpan data.");
+                }
+                
+                btn.textContent = "Simpan ke Database";
+                btn.disabled = false;
+            } else {
+                alert("Mohon isi Nama dan Nomor Meja!");
+            }
+        });
+
+        // LOGIKA IMPORT EXCEL
+        document.getElementById('btn-import').addEventListener('click', function() {
+            const fileInput = document.getElementById('file-excel');
+            const file = fileInput.files[0];
+            const btn = document.getElementById('btn-import');
+
+            if (!file) {
+                alert("Silakan pilih file Excel terlebih dahulu!");
+                return;
+            }
+
+            btn.textContent = "Membaca file...";
+            btn.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // Ambil sheet pertama
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // Ubah data sheet menjadi array 2D (baris dan kolom)
+                const jsonData = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+                
+                const dataToUpload = [];
+                
+                // Mulai dari i = 1 untuk melewati baris pertama (Judul Kolom / Header)
+                for (let i = 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    // Pastikan baris memiliki isi (nama tidak kosong)
+                    if (row[0]) {
+                        dataToUpload.push({
+                            nama: String(row[0]).trim(),
+                            meja: String(row[1] || "").trim() // Jika meja kosong, set jadi string kosong
+                        });
+                    }
+                }
+
+                if (dataToUpload.length === 0) {
+                    alert("Tidak ada data valid yang ditemukan di file Excel.");
+                    btn.textContent = "Mulai Import Data";
+                    btn.disabled = false;
+                    return;
+                }
+
+                // Kirim data ke Google Sheets
+                btn.textContent = `Mengirim ${dataToUpload.length} data...`;
+                
+                fetch(urlAPI, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'import', data: dataToUpload })
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert(`Import Sukses! ${dataToUpload.length} nama berhasil dimasukkan menggantikan data lama.`);
+                    btn.textContent = "Mulai Import Data";
+                    btn.disabled = false;
+                    fileInput.value = ""; // Reset input file
+                })
+                .catch(error => {
+                    alert("Terjadi kesalahan saat mengirim data ke server.");
+                    console.error(error);
+                    btn.textContent = "Mulai Import Data";
+                    btn.disabled = false;
+                });
+            };
+
+            // Baca file sebagai Array Buffer (format yang dibutuhkan SheetJS)
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+</html>

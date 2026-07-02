@@ -1,0 +1,111 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Background gradasi putih ke cream dengan tambahan tekstur halus transparan */
+    background: linear-gradient(135deg, #ffffff 0%, #fdfbf7 40%, #f4e8d1 100%);
+    background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png'), linear-gradient(135deg, #ffffff 0%, #fdfbf7 40%, #f4e8d1 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    color: #333;
+}
+
+/* DESAIN HEADER PENGANTIN */
+.wedding-header {
+    margin-top: 60px; /* Jarak dari atas layar */
+    font-family: "DM Serif Display", Georgia;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 5px; /* Memberi jarak antar huruf agar terkesan mewah */
+    color: #8c7a5c; /* Warna emas/bronze gelap */
+    text-align: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 40px 20px;
+    text-align: center;
+    margin-top: 130px;
+}
+
+.main-title {
+    font-family: 'Playfair Display', Georgia;
+    font-size: 32px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    color: #1a1a1a;
+}
+
+.search-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+/* DESAIN TEXTBOX GARIS */
+#input-nama {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #8c7a5c; /* Garis tipis warna krem gelap */
+    background: transparent;
+    text-align: center;
+    font-size: 18px;
+    padding: 10px 0;
+    outline: none;
+    color: #333;
+    font-family: 'Montserrat', sans-serif;
+    transition: border-bottom 0.3s ease;
+}
+
+#input-nama::placeholder {
+    color: #b3b3b3;
+    font-weight: 300;
+}
+
+#input-nama:focus {
+    border-bottom: 2px solid #5c4d3c; /* Garis menebal saat diketik */
+}
+
+/* DESAIN HASIL PENCARIAN */
+#hasil-pencarian {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* Kartu hasil yang sederhana namun elegan */
+.item-tamu {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(140, 122, 92, 0.2);
+    padding: 15px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03); /* Bayangan sangat tipis */
+}
+
+/* Membuat tulisan Nama dan Tabel berbeda gaya agar tidak membosankan */
+.nama-hasil {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.pemisah {
+    color: #8c7a5c;
+}
+
+.meja-hasil {
+    font-style: italic;
+    font-weight: 300;
+    color: #5c4d3c;
+}
